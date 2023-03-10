@@ -286,7 +286,7 @@ local has_xray = api.is_finded("xray")
 			
 			params += opt.query("encryption", "encryption");
 
-			if (opt.get("tls").checked) {
+			if (opt.get("tls").checked && !opt.get("reality").checked) {
 				var v_security = "tls";
 				params += "&security=" + v_security;
 				if (opt.get("tlsflow").value) {
@@ -298,6 +298,25 @@ local has_xray = api.is_finded("xray")
 					params += "&fp=" + v_fp;
 				}
 				params += opt.query("sni", "tls_serverName");
+			}
+
+			if (opt.get("reality").checked) {
+				var v_security = "reality";
+				params += "&security=" + v_security;
+				if (opt.get("transport").value == "tcp"){
+					if (opt.get("tlsflow").value) {
+						let v_flow = opt.get("tlsflow").value;
+						params += "&flow=" + v_flow;
+					}
+				}
+				if (opt.get("reality_fingerprint").value && opt.get("reality_fingerprint").value != "") {
+					let v_fp = opt.get("reality_fingerprint").value
+					params += "&fp=" + v_fp;
+				}
+				params += opt.query("sni", "tls_serverName");
+				params += opt.query("pbk", "reality_publicKey");
+				params += opt.query("sid", "reality_shortId");
+				params += opt.query("spx", "reality_spiderX");
 			}
 
 			params += "#" + encodeURI(v_alias.value);
@@ -854,6 +873,7 @@ local has_xray = api.is_finded("xray")
 			if (queryParam.security) {
 				if (queryParam.security == "tls") {
 					opt.set('tls', true);
+					opt.set('reality', false)
 					opt.set('tlsflow', queryParam.flow || '');
 					opt.set('tls_serverName', queryParam.sni || '');
 					opt.set('tls_allowInsecure', true);
@@ -864,6 +884,20 @@ local has_xray = api.is_finded("xray")
 						opt.set('xray_fingerprint', queryParam.fp);
 					}
 				}
+				
+				if (queryParam.security == "reality") {
+					opt.set('tls', true);
+					opt.set('reality', true)
+					opt.set('tlsflow', queryParam.flow || '');
+					opt.set('tls_serverName', queryParam.sni || '');
+					if (queryParam.fp && queryParam.fp.trim() != "") {
+						opt.set('reality_fingerprint', queryParam.fp);
+					}
+					opt.set('reality_publicKey', queryParam.pbk || '');
+					opt.set('reality_shortId', queryParam.sid || '');
+					opt.set('reality_spiderX', queryParam.spx || '');
+				}
+
 			}
 			
 			queryParam.type = queryParam.type.toLowerCase();
