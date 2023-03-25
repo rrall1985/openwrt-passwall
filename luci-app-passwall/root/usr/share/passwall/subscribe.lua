@@ -737,7 +737,8 @@ local function processData(szType, content, add_mode, add_from)
 				result.ws_host = params.host
 				result.ws_path = params.path
 			end
-			if params.type == 'h2' then
+			if params.type == 'h2' or params.type == 'http' then
+				params.type = "h2"
 				result.h2_host = params.host
 				result.h2_path = params.path
 			end
@@ -765,6 +766,7 @@ local function processData(szType, content, add_mode, add_from)
 			if params.type == 'grpc' then
 				if params.path then result.grpc_serviceName = params.path end
 				if params.serviceName then result.grpc_serviceName = params.serviceName end
+				result.grpc_mode = params.mode
 			end
 			result.transport = params.type
 			
